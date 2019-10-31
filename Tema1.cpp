@@ -31,12 +31,12 @@ void Tema1::Init()
 	
 	// initialize tx and ty of the bird
 	translateBirdX = 100;
-	translateBirdY = 275;
+	translateBirdY = 280;
 
 	numberOfRectangles = 13;
 
 	for (int i = 0; i < numberOfRectangles; i++) {
-		rectangleHeight[i] = 100 + (rand() % 15  + 2) * 10 ;
+		rectangleHeight[i] = 100 + (rand() % 15  + 3) * 10 ;
 		translateRectangleXArray[i] = window->GetResolution().x - i * width - i * 50;
 	}
 	translateRectangleDownY = 0;
@@ -75,7 +75,7 @@ void Tema1::Init()
 void Tema1::FrameStart()
 {
 	// clears the color buffer (using the previously set color) and depth buffer
-	glClearColor(0.1, 1, 1, 1);
+	glClearColor(0.5, 1, 1, 1);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	glm::ivec2 resolution = window->GetResolution();
@@ -141,22 +141,23 @@ void Tema1::Update(float deltaTimeSeconds)
 			foundCollision = true;
 			birdDeadUp = true;
 			break;
-		}
-
-		if (checkDown) {
+		}else if (checkDown) {
 			foundCollision = true;
 			birdDeadDown = true;
 			break;
 		}
 	}
 
-
+	// GAME OVER if collision
 	if (foundCollision && (birdDeadDown || birdDeadUp)) {
-		// cout << score;
+		if (!isDead) {
+			isDead = true;
+			cout << "GAME OVER! Score: " << score << endl;
+		}
 		if (birdDeadUp) 
 			goDownIdx = -400;
 		else 
-			goDownIdx = -9;
+			goDownIdx = -30;
 		
 		angularStep = -0.07f;
 		translateBirdY += goDownIdx;
@@ -172,6 +173,7 @@ void Tema1::Update(float deltaTimeSeconds)
 
 	}else{
 		score++;
+		cout << score << endl;
 		if (flies == true) {
 			angularStep = 0.2f;
 			if (translateBirdY < maxHeight) {
@@ -185,8 +187,8 @@ void Tema1::Update(float deltaTimeSeconds)
 		}
 		else {
 			// gravity rotates the bird down
-			goDownIdx = -0.2f;
-			angularStep = -0.07f;
+			goDownIdx = -0.3f;
+			angularStep = -0.5f;
 			translateBirdY += goDownIdx;
 			maxHeight = translateBirdY;
 

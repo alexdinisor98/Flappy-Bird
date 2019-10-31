@@ -9,34 +9,30 @@ Mesh* Object2D_T1::CreateBird(std::string name, glm::vec3 leftBottomCorner, floa
 	{
 		// draw the body of the bird
 		VertexFormat(corner, color),
-		VertexFormat(corner + glm::vec3(0, length, 0), color),
-		VertexFormat(corner + glm::vec3(length, length, 0), color),
-		VertexFormat(corner + glm::vec3(length, 0, 0), color),
+		VertexFormat(corner + glm::vec3(1.1 * length, 0, 1), glm::vec3(0.9, 0.2, 0.2)),
+		VertexFormat(corner + glm::vec3(0.8 * length, 0.3 * length, 1), glm::vec3(0.1, 0.1, 0.8)),
+		VertexFormat(corner + glm::vec3(0, 0.8 * length, 1), glm::vec3(0.1, 0.1, 0.2)),
+		VertexFormat(corner + glm::vec3(1.3 * length, length, 1), glm::vec3(0.9, 0.5, 0.8)),
+		VertexFormat(corner + glm::vec3(1.6 * length, 0.6 * length, 1), glm::vec3(0.2, 0.7, 0.2)),
+		VertexFormat(corner + glm::vec3(1.8 * length, 0.6 * length, 1), glm::vec3(0.33, 0.5, 0.1)),
+		VertexFormat(corner + glm::vec3(1.85 * length, 0.8 * length, 1), glm::vec3(0.8, 0.3, 0.2)),
+		VertexFormat(corner + glm::vec3(1.9 * length, 0.8 * length, 1), glm::vec3(0.1, 0.3, 0.8)),
+		VertexFormat(corner + glm::vec3(1.88 * length, 0.7 * length, 1), glm::vec3(0.2, 0.2, 0.8)),
+		VertexFormat(corner + glm::vec3(2 * length, 0.65 * length, 1), glm::vec3(0.2, 0.3, 0.9)),
 
-		// draw the head of the bird
-		VertexFormat(corner + glm::vec3(length, 0.2 * length, 0), color),
-		VertexFormat(corner + glm::vec3(length, 0.8 * length, 0), color),
-		VertexFormat(corner + glm::vec3(1.65 * length, 0.8 * length, 0), color),
-		VertexFormat(corner + glm::vec3(1.65 * length, 0.2 * length, 0), color),
-
-		//draw the beak of the bird
-		VertexFormat(corner + glm::vec3(1.65 * length, 0.35 * length, 0), glm::vec3(0.9, 0.2, 0.2)),
-		VertexFormat(corner + glm::vec3(1.65 * length, 0.68 * length, 0), glm::vec3(0.9, 0.2, 0.2)),
-		VertexFormat(corner + glm::vec3(2 * length, 0.52 * length, 0), glm::vec3(0.9, 0.2, 0.2)),
-
-		//draw wing of the bird
-		VertexFormat(corner + glm::vec3(0.3 * length, 0.6 * length, 1), glm::vec3(0.9, 0.2, 0.2)),
-		VertexFormat(corner + glm::vec3(0.6 * length, 0.6 * length, 1), glm::vec3(0.9, 0.2, 0.2)),
-		VertexFormat(corner + glm::vec3(0.45 * length, 0.4 * length, 1), glm::vec3(0.9, 0.2, 0.2))
 	};
 
 	Mesh* square = new Mesh(name);
-	std::vector<unsigned short> indices = { 0, 1, 2,
-		2, 3, 0,
-		4, 5, 6,
-		6, 7, 4,
-		8, 9, 10,
-		11, 12, 13};
+	std::vector<unsigned short> indices =
+	{0, 1, 2,
+		2, 3, 4,
+		4, 5, 2,
+		2, 5, 1,
+		5, 6, 1,
+		5, 7, 6,
+		7, 8, 6,
+		9, 6, 10
+	};
 	
 	if (!fill) {
 		square->SetDrawMode(GL_FILL);
@@ -60,7 +56,7 @@ Mesh* Object2D_T1::CreateRectangleDown(std::string name, glm::vec3 leftBottomCor
 		VertexFormat(corner, color),
 		VertexFormat(corner + glm::vec3(0, length, 0), glm::vec3(0.3, 1, 0.1)),
 		VertexFormat(corner + glm::vec3(width, length, 0), glm::vec3(0.2, 0.8, 0.2)),
-		VertexFormat(corner + glm::vec3(width, 0, 0), glm::vec3(0.2, 0.5, 0.2)),
+		VertexFormat(corner + glm::vec3(width, 0, 0), glm::vec3(0.2, 0.9, 0.2)),
 
 		/*VertexFormat(corner + glm::vec3(0, length - 10, 1), glm::vec3(0, 0, 1)),
 		VertexFormat(corner + glm::vec3(width, length - 10, 1), glm::vec3(0, 0, 1)),
@@ -94,7 +90,7 @@ Mesh* Object2D_T1::CreateRectangleUp(std::string name, glm::vec3 leftBottomCorne
 		VertexFormat(corner, color),
 		VertexFormat(corner + glm::vec3(0, -length, 0), glm::vec3(0.3, 1, 0.1)),
 		VertexFormat(corner + glm::vec3(width, -length, 0), glm::vec3(0.2, 0.8, 0.2)),
-		VertexFormat(corner + glm::vec3(width, 0, 0), glm::vec3(0.2, 0.5, 0.2)),
+		VertexFormat(corner + glm::vec3(width, 0, 0), glm::vec3(0.2, 0.9, 0.2)),
 
 
 	};
@@ -127,7 +123,7 @@ bool Object2D_T1::CheckCollision(float birdPositionX, float birdPositionY, float
 
 	// Collision y-axis?
 	bool collisionY = birdPositionY + birdHeight >= obstaclePositionY &&
-		obstaclePositionY + obstacleHeight >= birdPositionY;
+		obstaclePositionY + (obstacleHeight + 20) >= birdPositionY;
 
 	// Collision only if on both axes
 	return collisionX && collisionY;

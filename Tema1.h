@@ -45,4 +45,5 @@ class Tema1 : public SimpleScene
 		float squareBodySide = 50;
 		float defaultHeight = 100;
 		float width = 100 / 2;
+		bool isDead = false;
 };
