@@ -15,6 +15,9 @@ class Tema1 : public SimpleScene
 	private:
 		void FrameStart() override;
 		void Update(float deltaTimeSeconds) override;
+		void RenderSky();
+		void RenderCloud(float translateCircleX, float translateCircleY, std::string cloudName);
+		std::string createName(std::string name, int number);
 		void FrameEnd() override;
 
 		void OnInputUpdate(float deltaTime, int mods) override;
@@ -28,12 +31,14 @@ class Tema1 : public SimpleScene
 
 	protected:
 		glm::mat3 modelBirdMatrix;
-		glm::mat3 modelRectangleMatrixArray[13] = { };
+		glm::mat3 modelRectangleMatrixArray[8] = { };
+		glm::mat3 modelGroundMatrix;
+		glm::mat3 modelCircleMatrix;
 		float translateRectangleDownY;
 		float translateRectangleUpY;
-		float translateRectangleXArray[13] = { };
+		float translateRectangleXArray[8] = { };
 		float translateBirdX, translateBirdY;
-		float scaleX, scaleY;
+		float scaleRectangleY;
 		float angularStep;
 		float goUpIdx, goDownIdx;
 		bool flies;
@@ -41,9 +46,11 @@ class Tema1 : public SimpleScene
 		float maxHeight;
 		float score;
 		float numberOfRectangles;
-		float rectangleHeight[13] = { };
+		float rectangleHeight[8] = { };
 		float squareBodySide = 50;
-		float defaultHeight = 100;
-		float width = 100 / 2;
+		float defaultRectangleHeight = 100;
+		float rectangleWidth = 100 / 2;
 		bool isDead = false;
+		float spaceBetweenObstacles;
+
 };

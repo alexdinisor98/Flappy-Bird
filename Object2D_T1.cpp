@@ -57,10 +57,6 @@ Mesh* Object2D_T1::CreateRectangleDown(std::string name, glm::vec3 leftBottomCor
 		VertexFormat(corner + glm::vec3(0, length, 0), glm::vec3(0.3, 1, 0.1)),
 		VertexFormat(corner + glm::vec3(width, length, 0), glm::vec3(0.2, 0.8, 0.2)),
 		VertexFormat(corner + glm::vec3(width, 0, 0), glm::vec3(0.2, 0.9, 0.2)),
-
-		/*VertexFormat(corner + glm::vec3(0, length - 10, 1), glm::vec3(0, 0, 1)),
-		VertexFormat(corner + glm::vec3(width, length - 10, 1), glm::vec3(0, 0, 1)),
-		VertexFormat(corner + glm::vec3(0, length -10 , 1), glm::vec3(0, 0, 1)),*/
 	};
 
 	Mesh* rectangle = new Mesh(name);
@@ -91,13 +87,93 @@ Mesh* Object2D_T1::CreateRectangleUp(std::string name, glm::vec3 leftBottomCorne
 		VertexFormat(corner + glm::vec3(0, -length, 0), glm::vec3(0.3, 1, 0.1)),
 		VertexFormat(corner + glm::vec3(width, -length, 0), glm::vec3(0.2, 0.8, 0.2)),
 		VertexFormat(corner + glm::vec3(width, 0, 0), glm::vec3(0.2, 0.9, 0.2)),
-
-
 	};
 
 	Mesh* rectangle = new Mesh(name);
 	std::vector<unsigned short> indices = { 0, 1, 2,
 		2, 3, 0 };
+
+	if (!fill) {
+		rectangle->SetDrawMode(GL_FILL);
+	}
+	else {
+		// draw 2 triangles. Add the remaining 2 indices
+		indices.push_back(0);
+		indices.push_back(2);
+	}
+
+	rectangle->InitFromData(vertices, indices);
+	return rectangle;
+
+}
+
+Mesh* Object2D_T1::CreateGroundRectangle(std::string name, glm::vec3 leftBottomCorner, float width, float length, glm::vec3 color, bool fill) {
+	glm::vec3 corner = leftBottomCorner;
+
+	std::vector<VertexFormat> vertices =
+	{
+
+		VertexFormat(corner, color),
+		VertexFormat(corner + glm::vec3(0, length, -1), color),
+		VertexFormat(corner + glm::vec3(width, length, -1), color),
+		VertexFormat(corner + glm::vec3(width, 0, -1), color),
+	};
+
+	Mesh* rectangle = new Mesh(name);
+	std::vector<unsigned short> indices = { 0, 1, 2,
+		2, 3, 0 };
+
+	if (!fill) {
+		rectangle->SetDrawMode(GL_FILL);
+	}
+	else {
+		// draw 2 triangles. Add the remaining 2 indices
+		indices.push_back(0);
+		indices.push_back(2);
+	}
+
+	rectangle->InitFromData(vertices, indices);
+	return rectangle;
+
+}
+
+Mesh* Object2D_T1::CreateCircle(std::string name, glm::vec3 leftBottomCorner, float x, float y, float xcenter, float ycenter, glm::vec3 color, bool fill) {
+	glm::vec3 corner = leftBottomCorner;
+	float twicePi = 2.0f * 3.14;
+	float triangleAmount = 20;
+	std::vector<VertexFormat> vertices;
+	vertices.push_back(VertexFormat(corner + glm::vec3(x, y, -1), color));
+	
+		for (int i = 0; i <= triangleAmount; i++) {
+			float xx = x + ((xcenter + 1) * cos(i * twicePi / triangleAmount));
+			float yy = y + ((ycenter - 1) * sin(i * twicePi / triangleAmount));
+			vertices.push_back(VertexFormat(corner + glm::vec3(xx, yy, -1), color));
+		}
+	
+
+	Mesh* rectangle = new Mesh(name);
+	std::vector<unsigned short> indices = { 0, 1, 2,
+		0, 2, 3,
+		0, 3, 4,
+		0, 4, 5,
+		0, 5, 6,
+		0, 6, 7,
+		0, 7, 8,
+		0, 8, 9,
+		0, 9, 10,
+		0, 10, 11,
+		0, 11, 12,
+		0, 12, 13,
+		0, 13, 14,
+		0, 14, 15,
+		0, 15, 16,
+		0, 16, 17,
+		0, 17, 18,
+		0, 18, 19,
+		0, 19, 20,
+		0, 20, 1
+
+	};
 
 	if (!fill) {
 		rectangle->SetDrawMode(GL_FILL);
@@ -128,4 +204,5 @@ bool Object2D_T1::CheckCollision(float birdPositionX, float birdPositionY, float
 	// Collision only if on both axes
 	return collisionX && collisionY;
 }
+
 

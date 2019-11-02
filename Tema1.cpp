@@ -27,23 +27,29 @@ void Tema1::Init()
 	camera->Update();
 	GetCameraInput()->SetActive(false);
 
-	glm::vec3 corner = glm::vec3(0, 0, 0);
+	glm::vec3 corner = glm::vec3(0, 0, 1);
 	
 	// initialize tx and ty of the bird
 	translateBirdX = 100;
 	translateBirdY = 280;
+	spaceBetweenObstacles = 110;
 
-	numberOfRectangles = 13;
+	numberOfRectangles = window->GetResolution().x / (rectangleWidth + spaceBetweenObstacles);
 
-	for (int i = 0; i < numberOfRectangles; i++) {
-		rectangleHeight[i] = 100 + (rand() % 15  + 3) * 10 ;
-		translateRectangleXArray[i] = window->GetResolution().x - i * width - i * 50;
+	// initialize the obstacles height randomly
+	rectangleHeight[0] = 100 + (rand() % 10 + 3) * 10;
+	translateRectangleXArray[0] = window->GetResolution().x;
+	for (int i = 1; i < numberOfRectangles; i++) {
+		rectangleHeight[i] = 100 + (rand() % 16  + 3) * 10 ;
+		translateRectangleXArray[i] = window->GetResolution().x - i * rectangleWidth - i * spaceBetweenObstacles;
 	}
 	translateRectangleDownY = 0;
 	translateRectangleUpY = window->GetResolution().y;
 
 	flies = false;
 	maxHeight = translateBirdY;
+
+	// initialie the score
 	score = 0;
 	
 	// initialize angularStep and idx to go Up or Down
@@ -54,23 +60,34 @@ void Tema1::Init()
 	Mesh* flappyBird = Object2D_T1::CreateBird("flappyBird", corner, squareBodySide, glm::vec3(0.6, 0.5, 0.1), true);
 	AddMeshToList(flappyBird);
 
-	// add the obstacles Up and Down
+	// add mesh for the obstacles Up and Down
 	for (int i = 0; i < numberOfRectangles; i++) {
-		std::string rectangleName = "rectangleDown";
-		std::string s = std::to_string(i);
-		rectangleName = rectangleName + s;
-
-		Mesh* rectangle = Object2D_T1::CreateRectangleDown(rectangleName, corner, width, rectangleHeight[i], glm::vec3(0.3, 0.5, 0.5), true);
+		std::string rectangleName = createName("rectangleDown", i);
+		Mesh* rectangle = Object2D_T1::CreateRectangleDown(rectangleName, corner, rectangleWidth, rectangleHeight[i], glm::vec3(0.3, 0.5, 0.5), true);
 		AddMeshToList(rectangle);
 
-		rectangleName = "rectangleUp";
-		rectangleName = rectangleName + s;
-
-		rectangle = Object2D_T1::CreateRectangleUp(rectangleName, corner, width, rectangleHeight[i], glm::vec3(0.3, 0.5, 0.5), true);
+		rectangleName = createName("rectangleUp", i);
+		rectangle = Object2D_T1::CreateRectangleUp(rectangleName, corner, rectangleWidth, rectangleHeight[i], glm::vec3(0.3, 0.5, 0.5), true);
 		AddMeshToList(rectangle);
 	}	
 
+	// add mesh for the ground
+	Mesh* rectangleGround  = Object2D_T1::CreateGroundRectangle("ground", corner, window->GetResolution().x, 35, glm::vec3(0.4, 0.25, 0), true);
+	AddMeshToList(rectangleGround);
+
+	// add mesh for the clouds
+	for (int j = 0; j < 6; j++) {
+		std::string cloudName = createName("cloud", j);
+		float numberOfCircles = 8;
+		for (int i = 0; i < numberOfCircles; i++) {
+			std::string circleName = createName(cloudName, i);
+			Mesh* circle = Object2D_T1::CreateCircle(circleName, corner, 100, 100, 110, 110, glm::vec3(0, 0.5, 1), true);
+			AddMeshToList(circle);
+		}
+	}
+
 }
+
 
 void Tema1::FrameStart()
 {
@@ -88,43 +105,12 @@ void Tema1::Update(float deltaTimeSeconds)
 	glLineWidth(10);
 	modelBirdMatrix = Transform2D_T1::Translate(translateBirdX, translateBirdY);
 
-	// translate rectangles down
-	for (int i = 0; i < numberOfRectangles; i++) {
-		modelRectangleMatrixArray[i] = Transform2D_T1::Translate(translateRectangleXArray[i], translateRectangleDownY);
-		if (translateRectangleXArray[i] > 0) {
-			translateRectangleXArray[i] -= 2;
-			modelRectangleMatrixArray[i] = Transform2D_T1::Translate(translateRectangleXArray[i], translateRectangleDownY);
-		} else {
-			translateRectangleXArray[i] = window->GetResolution().x - 1;
-			modelRectangleMatrixArray[i] = Transform2D_T1::Translate(translateRectangleXArray[i], translateRectangleDownY);
-		}
-	}
-	
-	for (int i = 0; i < numberOfRectangles; i++) {
-		std::string rectangleName = "rectangleDown";
-		std::string s = std::to_string(i);
-		rectangleName = rectangleName + s;
-		RenderMesh2D(meshes[rectangleName], shaders["VertexColor"], modelRectangleMatrixArray[i]);
-	}
+	// render the ground
+	modelGroundMatrix = Transform2D_T1::Translate(0, 0);
+	RenderMesh2D(meshes["ground"], shaders["VertexColor"], modelGroundMatrix);
 
-	// translate rectangles up
-	for (int i = 0; i < numberOfRectangles; i++) {
-		modelRectangleMatrixArray[i] = Transform2D_T1::Translate(translateRectangleXArray[i], translateRectangleUpY);
-		if (translateRectangleXArray[i] > 0) {
-			translateRectangleXArray[i] -= 2;
-			modelRectangleMatrixArray[i] = Transform2D_T1::Translate(translateRectangleXArray[i], translateRectangleUpY);
-		}
-		else {
-			translateRectangleXArray[i] = window->GetResolution().x - 1;
-			modelRectangleMatrixArray[i] = Transform2D_T1::Translate(translateRectangleXArray[i], translateRectangleUpY);
-		}
-	}
-	for (int i = 0; i < numberOfRectangles; i++) {
-		std::string rectangleName = "rectangleUp";
-		std::string s = std::to_string(i);
-		rectangleName = rectangleName + s;
-		RenderMesh2D(meshes[rectangleName], shaders["VertexColor"], modelRectangleMatrixArray[i]);
-	}
+	//render the sky
+	RenderSky();
 
 	// check for Collision Up and Down
 	bool foundCollision = false;
@@ -132,16 +118,17 @@ void Tema1::Update(float deltaTimeSeconds)
 	bool birdDeadDown = false;
 	for (int i = 0; i < numberOfRectangles; i++) {
 		bool checkUp = Object2D_T1::CheckCollision(translateBirdX, translateBirdY, squareBodySide * 2, squareBodySide,
-			translateRectangleXArray[i], translateRectangleUpY - rectangleHeight[i], width, rectangleHeight[i]);
+			translateRectangleXArray[i], translateRectangleUpY - rectangleHeight[i], rectangleWidth, rectangleHeight[i]);
 
 		bool checkDown = Object2D_T1::CheckCollision(translateBirdX, translateBirdY, squareBodySide * 2, squareBodySide,
-			translateRectangleXArray[i], translateRectangleDownY, width, rectangleHeight[i]);
-
+			translateRectangleXArray[i], translateRectangleDownY, rectangleWidth, rectangleHeight[i]);
+		//check for collision on the Upper Obstacles
 		if (checkUp) {
 			foundCollision = true;
 			birdDeadUp = true;
 			break;
-		}else if (checkDown) {
+		}else //check for collision on the Lower Obstacles
+			if (checkDown) {
 			foundCollision = true;
 			birdDeadDown = true;
 			break;
@@ -155,25 +142,24 @@ void Tema1::Update(float deltaTimeSeconds)
 			cout << "GAME OVER! Score: " << score << endl;
 		}
 		if (birdDeadUp) 
-			goDownIdx = -400;
+			goDownIdx = -350;
 		else 
 			goDownIdx = -30;
 		
+		// the bird goes down if collision
 		angularStep = -0.07f;
 		translateBirdY += goDownIdx;
 		maxHeight = translateBirdY;
 		if (translateBirdY <= 0) {
+			// bird falls
 			translateBirdY = 0;
 			modelBirdMatrix = Transform2D_T1::Translate(translateBirdX, translateBirdY);
-		}
-		else {
+		} else {
 			modelBirdMatrix = Transform2D_T1::Translate(translateBirdX, translateBirdY)
 							* Transform2D_T1::Rotate(angularStep);
 		}
 
 	}else{
-		score++;
-		cout << score << endl;
 		if (flies == true) {
 			angularStep = 0.2f;
 			if (translateBirdY < maxHeight) {
@@ -193,12 +179,56 @@ void Tema1::Update(float deltaTimeSeconds)
 			maxHeight = translateBirdY;
 
 			modelBirdMatrix = Transform2D_T1::Translate(translateBirdX, translateBirdY)
-				* Transform2D_T1::Rotate(angularStep);
+							* Transform2D_T1::Rotate(angularStep);
 		}
 
 	} 
 	RenderMesh2D(meshes["flappyBird"], shaders["VertexColor"], modelBirdMatrix);
 
+	// translate rectangles down
+	for (int i = 0; i < numberOfRectangles; i++) {
+		modelRectangleMatrixArray[i] = Transform2D_T1::Translate(translateRectangleXArray[i], translateRectangleDownY);
+		if (translateRectangleXArray[i] > 0) {
+			translateRectangleXArray[i] -= 2;
+			modelRectangleMatrixArray[i] = Transform2D_T1::Translate(translateRectangleXArray[i], translateRectangleDownY);
+		}
+		else {
+			// if the rectangle is at X = 0 -> goes back to X = windowX - 1;
+			if (!isDead) {
+				score++;
+				cout << score << endl;
+			}
+			translateRectangleXArray[i] = window->GetResolution().x - 1;
+			modelRectangleMatrixArray[i] = Transform2D_T1::Translate(translateRectangleXArray[i], translateRectangleDownY);
+		}
+	}
+
+	for (int i = 0; i < numberOfRectangles; i++) {
+		std::string rectangleName = createName("rectangleDown", i);
+		RenderMesh2D(meshes[rectangleName], shaders["VertexColor"], modelRectangleMatrixArray[i]);
+	}
+
+	// translate rectangles up
+	for (int i = 0; i < numberOfRectangles; i++) {
+		modelRectangleMatrixArray[i] = Transform2D_T1::Translate(translateRectangleXArray[i], translateRectangleUpY);
+		if (translateRectangleXArray[i] > 0) {
+			translateRectangleXArray[i] -= 2;
+			modelRectangleMatrixArray[i] = Transform2D_T1::Translate(translateRectangleXArray[i], translateRectangleUpY);
+		}
+		else {
+			// if the rectangle is at X = 0 -> goes back to X = windowX;
+			if (!isDead) {
+				score++;
+				cout << score << endl;
+			}
+			translateRectangleXArray[i] = window->GetResolution().x - 1;
+			modelRectangleMatrixArray[i] = Transform2D_T1::Translate(translateRectangleXArray[i], translateRectangleUpY);
+		}
+	}
+	for (int i = 0; i < numberOfRectangles; i++) {
+		std::string rectangleName = createName("rectangleUp", i);
+		RenderMesh2D(meshes[rectangleName], shaders["VertexColor"], modelRectangleMatrixArray[i]);
+	}
 }
 
 void Tema1::FrameEnd()
@@ -246,6 +276,55 @@ void Tema1::OnMouseScroll(int mouseX, int mouseY, int offsetX, int offsetY)
 
 void Tema1::OnWindowResize(int width, int height)
 {
-	auto camera = GetSceneCamera();
-	camera->SetOrthographic(0, (float)width, 0, (float)height, 0.01f, 400);
+}
+
+// Render a cloud from 8 circles.
+void Tema1::RenderCloud(float translateCircleX, float translateCircleY, std::string cloudName) {
+	for (int i = 0; i < 3; i++) {
+		std::string circleName = createName(cloudName, i);
+		modelCircleMatrix = Transform2D_T1::Translate(translateCircleX + 25 * i, translateCircleY) * Transform2D_T1::Scale(.2f, .2f);
+		RenderMesh2D(meshes[circleName], shaders["VertexColor"], modelCircleMatrix);
+	}
+
+	for (int i = 0; i < 3; i++) {
+		std::string circleName = createName(cloudName, i + 3);
+		modelCircleMatrix = Transform2D_T1::Translate(translateCircleX + 25 * i, translateCircleY - 20) * Transform2D_T1::Scale(.2f, .2f);
+		RenderMesh2D(meshes[circleName], shaders["VertexColor"], modelCircleMatrix);
+	}
+	modelCircleMatrix = Transform2D_T1::Translate(translateCircleX - 10, translateCircleY - 10) * Transform2D_T1::Scale(.2f, .2f);
+	std::string circleName = createName(cloudName, 6);
+	RenderMesh2D(meshes[circleName], shaders["VertexColor"], modelCircleMatrix);
+
+
+	modelCircleMatrix = Transform2D_T1::Translate(translateCircleX + 60, translateCircleY - 10) * Transform2D_T1::Scale(.2f, .2f);
+	circleName = createName(cloudName, 7);
+	RenderMesh2D(meshes[circleName], shaders["VertexColor"], modelCircleMatrix);
+}
+
+// Render the sky with 8 clouds
+void Tema1::RenderSky() {
+
+	std::string cloudName = createName("cloud", 0);
+	RenderCloud(100, 540, cloudName);
+
+	cloudName = createName("cloud", 1);
+	RenderCloud(350, 570, cloudName);
+
+	cloudName = createName("cloud", 2);
+	RenderCloud(900, 475, cloudName);
+
+	cloudName = createName("cloud", 3);
+	RenderCloud(600, 490, cloudName);
+
+	cloudName = createName("cloud", 4);
+	RenderCloud(1100, 550, cloudName);
+
+	cloudName = createName("cloud", 5);
+	RenderCloud(700, 600, cloudName);
+}
+
+// create name for mesh
+std::string Tema1::createName(std::string name, int number) {
+	std::string s = std::to_string(number);
+	return name + s;
 }
