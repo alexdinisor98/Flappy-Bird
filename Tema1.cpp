@@ -40,7 +40,7 @@ void Tema1::Init()
 	rectangleHeight[0] = 100 + (rand() % 10 + 3) * 10;
 	translateRectangleXArray[0] = window->GetResolution().x;
 	for (int i = 1; i < numberOfRectangles; i++) {
-		rectangleHeight[i] = 100 + (rand() % 16  + 3) * 10 ;
+		rectangleHeight[i] = 100 + (rand() % 14  + 2) * 10 ;
 		translateRectangleXArray[i] = window->GetResolution().x - i * rectangleWidth - i * spaceBetweenObstacles;
 	}
 	translateRectangleDownY = 0;
@@ -49,7 +49,7 @@ void Tema1::Init()
 	flies = false;
 	maxHeight = translateBirdY;
 
-	// initialie the score
+	// initialize the score
 	score = 0;
 	
 	// initialize angularStep and idx to go Up or Down
@@ -85,7 +85,6 @@ void Tema1::Init()
 			AddMeshToList(circle);
 		}
 	}
-
 }
 
 
@@ -142,17 +141,17 @@ void Tema1::Update(float deltaTimeSeconds)
 			cout << "GAME OVER! Score: " << score << endl;
 		}
 		if (birdDeadUp) 
-			goDownIdx = -350;
+			goDownIdx = -380;
 		else 
 			goDownIdx = -30;
 		
 		// the bird goes down if collision
-		angularStep = -0.07f;
+		angularStep = -0.06f;
 		translateBirdY += goDownIdx;
 		maxHeight = translateBirdY;
 		if (translateBirdY <= 0) {
 			// bird falls
-			translateBirdY = 0;
+			translateBirdY = -150;
 			modelBirdMatrix = Transform2D_T1::Translate(translateBirdX, translateBirdY);
 		} else {
 			modelBirdMatrix = Transform2D_T1::Translate(translateBirdX, translateBirdY)
@@ -163,7 +162,7 @@ void Tema1::Update(float deltaTimeSeconds)
 		if (flies == true) {
 			angularStep = 0.2f;
 			if (translateBirdY < maxHeight) {
-				translateBirdY += 1;
+				translateBirdY += 2;
 				modelBirdMatrix = Transform2D_T1::Translate(translateBirdX, translateBirdY)
 					* Transform2D_T1::Rotate(angularStep);
 			}
@@ -305,22 +304,22 @@ void Tema1::RenderCloud(float translateCircleX, float translateCircleY, std::str
 void Tema1::RenderSky() {
 
 	std::string cloudName = createName("cloud", 0);
-	RenderCloud(100, 540, cloudName);
+	RenderCloud(100, window->GetResolution().y - 170, cloudName);
 
 	cloudName = createName("cloud", 1);
-	RenderCloud(350, 570, cloudName);
+	RenderCloud(350, window->GetResolution().y - 100, cloudName);
 
 	cloudName = createName("cloud", 2);
-	RenderCloud(900, 475, cloudName);
+	RenderCloud(window->GetResolution().x - 450, window->GetResolution().y - 230, cloudName);
 
 	cloudName = createName("cloud", 3);
-	RenderCloud(600, 490, cloudName);
+	RenderCloud(window->GetResolution().x - 650, window->GetResolution().y - 220, cloudName);
 
 	cloudName = createName("cloud", 4);
-	RenderCloud(1100, 550, cloudName);
+	RenderCloud(window->GetResolution().x - 200 , window->GetResolution().y - 180, cloudName);
 
 	cloudName = createName("cloud", 5);
-	RenderCloud(700, 600, cloudName);
+	RenderCloud(window->GetResolution().x - 400, window->GetResolution().y - 100, cloudName);
 }
 
 // create name for mesh

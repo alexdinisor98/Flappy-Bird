@@ -45,12 +45,12 @@ class Tema1 : public SimpleScene
 		float time;
 		float maxHeight;
 		float score;
-		float numberOfRectangles;
+		int numberOfRectangles;
 		float rectangleHeight[8] = { };
 		float squareBodySide = 50;
 		float defaultRectangleHeight = 100;
 		float rectangleWidth = 100 / 2;
 		bool isDead = false;
-		float spaceBetweenObstacles;
+		int spaceBetweenObstacles;
 
 };
